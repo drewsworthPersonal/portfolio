@@ -14,15 +14,11 @@ const PENTATONIC = [72, 74, 76, 79, 81, 84];
 
 // Each theme nudges the key and brightness so the music matches the look
 const THEME_SOUND: Record<string, { shift: number; cutoff: number }> = {
-  plum: { shift: 0, cutoff: 1100 },
-  forest: { shift: -2, cutoff: 1000 },
-  linen: { shift: 2, cutoff: 1600 },
   graphite: { shift: -3, cutoff: 900 },
   sky: { shift: 4, cutoff: 1900 },
   terminal: { shift: -5, cutoff: 1300 },
   paper: { shift: 2, cutoff: 1500 },
   midnight: { shift: -1, cutoff: 1200 },
-  ember: { shift: -4, cutoff: 1000 },
 };
 
 const BPM = 70;
@@ -101,7 +97,7 @@ class Ambient {
   }
 
   setTheme(id: string) {
-    const s = THEME_SOUND[id] ?? THEME_SOUND.plum;
+    const s = THEME_SOUND[id] ?? THEME_SOUND.graphite;
     this.shift = s.shift;
     if (this.ctx) this.padFilter.frequency.setTargetAtTime(s.cutoff, this.ctx.currentTime, 1.5);
   }
