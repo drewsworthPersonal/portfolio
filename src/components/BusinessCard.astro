@@ -217,11 +217,104 @@ import { profile } from "../data/site";
     });
   }
 
+  // Phone tilt: the card follows the device's orientation while it is on screen.
+  // iOS needs a permission prompt from a tap, so it is requested on the first tap
+  // of the card or Flip button. Android starts right away.
+  type OrientationEventCtor = typeof DeviceOrientationEvent & {
+    requestPermission?: () => Promise<"granted" | "denied">;
+  };
+  const Orientation = (window as { DeviceOrientationEvent?: OrientationEventCtor }).DeviceOrientationEvent;
+  const canTilt = !reduced && !!Orientation && matchMedia("(pointer: coarse)").matches;
+  const needsPermission = typeof Orientation?.requestPermission === "function";
+  const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
+
+  let tiltOn = false;
+  let asked = false;
+  let listening = false;
+  let onScreen = false;
+  let base: { x: number; y: number } | null = null;
+
+  function onOrient(e: DeviceOrientationEvent) {
+    if (e.beta === null || e.gamma === null) return;
+    // Map device axes to screen axes so landscape works too
+    const angle = screen.orientation?.angle ?? 0;
+    let x = e.gamma;
+    let y = e.beta;
+    if (angle === 90) { x = e.beta; y = -e.gamma; }
+    else if (angle === 270) { x = -e.beta; y = e.gamma; }
+    else if (angle === 180) { x = -e.gamma; y = -e.beta; }
+
+    // However the phone is held when tilt starts counts as level. The baseline
+    // drifts slowly toward the current grip so the card re-centers over a few seconds.
+    if (!base) base = { x, y };
+    base.x += (x - base.x) * 0.004;
+    base.y += (y - base.y) * 0.004;
+
+    const dx = clamp(x - base.x, -25, 25);
+    const dy = clamp(y - base.y, -25, 25);
+    const ry = REST.ry + dx * 0.9;
+    const rx = REST.rx - dy * 0.7;
+    // Ignore sensor jitter so the animation loop can rest when the phone is still
+    if (Math.abs(ry - tgt.ry) < 0.25 && Math.abs(rx - tgt.rx) < 0.25) return;
+    tgt.ry = ry;
+    tgt.rx = rx;
+    tgt.gx = clamp(50 + dx * 2, 0, 100);
+    tgt.gy = clamp(30 + dy * 2, 0, 100);
+    kick();
+  }
+
+  function syncListener() {
+    const want = tiltOn && onScreen;
+    if (want === listening) return;
+    listening = want;
+    if (want) {
+      base = null;
+      window.addEventListener("deviceorientation", onOrient);
+    } else {
+      window.removeEventListener("deviceorientation", onOrient);
+      tgt.rx = REST.rx;
+      tgt.ry = REST.ry;
+      tgt.gx = 50;
+      tgt.gy = 30;
+      kick();
+    }
+  }
+
+  // fromTap: iOS only shows the prompt for a tap, and a denial there is final for
+  // this page load. A silent attempt on load (Android grants it without a prompt)
+  // can fail without using up the tap.
+  async function enableTilt(fromTap: boolean) {
+    if (!canTilt || tiltOn || asked) return;
+    if (fromTap) asked = true;
+    if (needsPermission) {
+      try {
+        if ((await Orientation!.requestPermission!()) !== "granted") return;
+      } catch {
+        return;
+      }
+    }
+    tiltOn = true;
+    syncListener();
+  }
+
+  if (canTilt) {
+    new IntersectionObserver(([entry]) => {
+      onScreen = entry.isIntersecting;
+      syncListener();
+    }).observe(stage);
+    screen.orientation?.addEventListener("change", () => (base = null));
+    enableTilt(false);
+  }
+
   card.addEventListener("click", (e) => {
     if ((e.target as Element).closest("a")) return;
+    enableTilt(true);
     flip();
   });
-  flipBtn.addEventListener("click", flip);
+  flipBtn.addEventListener("click", () => {
+    enableTilt(true);
+    flip();
+  });
 
   render();
 </script>
