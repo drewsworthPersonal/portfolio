@@ -1,0 +1,138 @@
+---
+import { themes } from "../data/themes";
+---
+
+<div class="picker">
+  <button class="trigger" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="theme-menu" aria-label="Change theme">
+    <span class="dot" aria-hidden="true"></span>
+    <span class="label">Theme</span>
+  </button>
+  <div class="menu" id="theme-menu" role="group" aria-label="Themes" hidden>
+    {
+      themes.map((t) => (
+        <button class="option" type="button" data-theme-id={t.id} aria-pressed="false">
+          <span class="swatch" aria-hidden="true" style={`--s0:${t.swatch[0]};--s1:${t.swatch[1]};--s2:${t.swatch[2]}`} />
+          <span class="text">
+            <span class="name">{t.name}</span>
+            <span class="note">{t.note}</span>
+          </span>
+        </button>
+      ))
+    }
+  </div>
+</div>
+
+<style>
+  .picker { position: relative; }
+  .trigger {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 36px;
+    padding: 0 12px 0 10px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--surface);
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+  }
+  .trigger:hover { border-color: var(--accent); }
+  .dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: conic-gradient(var(--accent) 0 50%, var(--surface-2) 50% 100%);
+    box-shadow: 0 0 0 1px var(--line);
+  }
+  @media (max-width: 520px) { .label { display: none; } .trigger { padding: 0 10px; } }
+
+  .menu {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 8px);
+    width: 260px;
+    max-height: min(70vh, 520px);
+    overflow-y: auto;
+    padding: 6px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: var(--surface);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+    transform-origin: top right;
+    animation: pop 0.16s var(--ease);
+  }
+  @keyframes pop { from { opacity: 0; transform: scale(0.96) translateY(-4px); } }
+  .option {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 8px 10px;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    cursor: pointer;
+    text-align: left;
+  }
+  .option:hover { background: var(--surface-2); }
+  .option[aria-pressed="true"] { background: var(--surface-2); box-shadow: inset 0 0 0 1px var(--accent); }
+  .swatch {
+    flex: none;
+    width: 34px;
+    height: 34px;
+    border-radius: 9px;
+    background:
+      radial-gradient(circle at 70% 70%, var(--s2) 0 26%, transparent 27%),
+      linear-gradient(135deg, var(--s0) 0 50%, var(--s1) 50% 100%);
+    box-shadow: inset 0 0 0 1px rgba(127, 127, 127, 0.3);
+  }
+  .text { display: flex; flex-direction: column; line-height: 1.25; }
+  .name { font-size: 14px; font-weight: 600; }
+  .note { font-size: 12px; color: var(--muted); }
+  @media (prefers-reduced-motion: reduce) { .menu { animation: none; } }
+</style>
+
+<script>
+  import { ambient } from "../scripts/ambient";
+
+  const root = document.documentElement;
+  const trigger = document.querySelector<HTMLButtonElement>(".picker .trigger")!;
+  const menu = document.querySelector<HTMLElement>("#theme-menu")!;
+  const options = menu.querySelectorAll<HTMLButtonElement>(".option");
+
+  function mark(id: string) {
+    options.forEach((o) => o.setAttribute("aria-pressed", String(o.dataset.themeId === id)));
+  }
+
+  function apply(id: string) {
+    root.classList.add("theme-swap");
+    root.dataset.theme = id;
+    mark(id);
+    ambient.setTheme(id);
+    try { localStorage.setItem("theme", id); } catch {}
+    window.setTimeout(() => root.classList.remove("theme-swap"), 400);
+  }
+
+  function open(state: boolean) {
+    menu.hidden = !state;
+    trigger.setAttribute("aria-expanded", String(state));
+    if (state) menu.querySelector<HTMLButtonElement>('[aria-pressed="true"]')?.focus();
+  }
+
+  mark(root.dataset.theme ?? "");
+  ambient.setTheme(root.dataset.theme ?? "");
+
+  trigger.addEventListener("click", () => open(menu.hidden));
+  options.forEach((o) => o.addEventListener("click", () => apply(o.dataset.themeId!)));
+
+  document.addEventListener("click", (e) => {
+    if (!menu.hidden && !(e.target as Element).closest(".picker")) open(false);
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !menu.hidden) {
+      open(false);
+      trigger.focus();
+    }
+  });
+</script>
