@@ -1,0 +1,55 @@
+---
+import "@fontsource-variable/inter";
+import "@fontsource-variable/jetbrains-mono";
+import "@fontsource/instrument-serif";
+import "../styles/themes.css";
+import "../styles/global.css";
+import { themes, defaultDark, defaultLight } from "../data/themes";
+
+interface Props {
+  title: string;
+  description: string;
+}
+
+const { title, description } = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+const themeIds = themes.map((t) => t.id);
+---
+
+<!doctype html>
+<html lang="en" data-theme={defaultDark}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="author" content="Andrew Velazquez" />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+
+    <!-- Apply the saved theme before first paint so there is no flash -->
+    <script is:inline define:vars={{ themeIds, defaultDark, defaultLight }}>
+      var root = document.documentElement;
+      root.classList.add("js");
+      try {
+        var saved = localStorage.getItem("theme");
+        if (saved && themeIds.indexOf(saved) !== -1) {
+          root.dataset.theme = saved;
+        } else {
+          root.dataset.theme = matchMedia("(prefers-color-scheme: light)").matches ? defaultLight : defaultDark;
+        }
+      } catch (e) {}
+    </script>
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+    <slot />
+    <script>
+      import "../scripts/reveal";
+    </script>
+  </body>
+</html>
