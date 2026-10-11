@@ -1,0 +1,60 @@
+---
+import { jobs } from "../data/site";
+---
+
+<section class="section wrap" id="experience">
+  <div class="section-head" data-reveal>
+    <span class="num">02</span>
+    <h2>Experience</h2>
+  </div>
+
+  <ol class="timeline">
+    {
+      jobs.map((job) => (
+        <li class="job" data-reveal>
+          <div class="meta">
+            <p class="when mono">{job.when}</p>
+            <p class="place muted">{job.place}</p>
+          </div>
+          <div class="body">
+            <h3>{job.role}</h3>
+            <p class="org">{job.org}</p>
+            <p class="summary muted">{job.summary}</p>
+            <ul class="points">
+              {job.points.map((p) => <li>{p}</li>)}
+            </ul>
+            <ul class="tags">
+              {job.tags.map((t) => <li>{t}</li>)}
+            </ul>
+          </div>
+        </li>
+      ))
+    }
+  </ol>
+</section>
+
+<style>
+  .timeline { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+  .job { display: grid; gap: 8px 32px; padding: 28px 0; border-top: 1px solid var(--line); }
+  .job:first-child { border-top: 0; padding-top: 0; }
+  @media (min-width: 800px) { .job { grid-template-columns: 180px 1fr; } }
+  .when { font-size: 13px; color: var(--accent); }
+  .place { font-size: 13px; margin-top: 2px; }
+  h3 { font-size: 1.25rem; }
+  .org { margin-top: 2px; font-weight: 500; }
+  .summary { margin-top: 10px; font-size: 15px; }
+  .points { display: grid; gap: 10px; margin-top: 16px; }
+  .points li { position: relative; padding-left: 20px; }
+  .points li::before {
+    content: "";
+    position: absolute;
+    left: 2px;
+    top: 0.72em;
+    width: 7px;
+    height: 7px;
+    border-radius: 2px;
+    background: var(--accent);
+    opacity: 0.85;
+  }
+  .tags { margin-top: 18px; }
+</style>

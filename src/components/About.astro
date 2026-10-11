@@ -1,0 +1,61 @@
+---
+import { about, stats, education } from "../data/site";
+---
+
+<section class="section wrap" id="about">
+  <div class="section-head" data-reveal>
+    <span class="num">01</span>
+    <h2>About</h2>
+  </div>
+  <p class="about" data-reveal>{about}</p>
+
+  <dl class="stats" data-reveal>
+    {
+      stats.map((s) => (
+        <div>
+          <dt>{s.label}</dt>
+          <dd>{s.value}</dd>
+        </div>
+      ))
+    }
+  </dl>
+
+  <ul class="edu" data-reveal>
+    {
+      education.map((e) => (
+        <li>
+          <div>
+            <p class="school">{e.school}</p>
+            <p class="muted">{e.degree}</p>
+          </div>
+          <p class="when mono">{e.when}</p>
+        </li>
+      ))
+    }
+  </ul>
+</section>
+
+<style>
+  .about { max-width: 62ch; font-size: clamp(1.1rem, 2.3vw, 1.35rem); line-height: 1.55; }
+
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+    margin: 40px 0 0;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--line);
+  }
+  @media (min-width: 760px) { .stats { grid-template-columns: repeat(4, 1fr); } }
+  .stats div { display: flex; flex-direction: column-reverse; padding: 20px 22px; background: var(--surface); }
+  .stats dt { font-size: 13px; color: var(--muted); }
+  .stats dd { margin: 0; font-size: 1.8rem; font-weight: 700; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; color: var(--accent); }
+
+  .edu { display: grid; margin-top: 40px; }
+  .edu li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 16px; padding: 16px 0; border-top: 1px solid var(--line); }
+  .edu li:first-child { border-top: 0; }
+  .school { font-weight: 600; }
+  .when { font-size: 13px; color: var(--muted); }
+</style>
