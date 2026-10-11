@@ -1,0 +1,124 @@
+---
+import BusinessCard from "./BusinessCard.astro";
+import { profile, greetings } from "../data/site";
+---
+
+<section class="hero wrap" id="top">
+  <div class="intro">
+    <p class="hello" aria-hidden="true">
+      <span class="word" data-greetings={JSON.stringify(greetings)}>{greetings[0]}</span>
+    </p>
+    <h1>
+      <span class="visually-hidden">Hello, </span>I'm {profile.first}<br />
+      <span class="last">{profile.last}.</span>
+    </h1>
+    <p class="lede">
+      Software engineer in {profile.location}, building cloud systems, APIs, and data pipelines for a 24/7 freight operation.
+    </p>
+    <div class="cta">
+      <a class="btn primary" href={profile.resume} target="_blank" rel="noopener">Resume</a>
+      <a class="btn" href="#contact">Get in touch</a>
+    </div>
+  </div>
+  <div class="card-col">
+    <BusinessCard />
+  </div>
+</section>
+
+<style>
+  .hero {
+    display: grid;
+    gap: 48px;
+    align-items: center;
+    padding-top: 72px;
+    padding-bottom: 40px;
+    min-height: min(88vh, 760px);
+  }
+  @media (min-width: 900px) {
+    .hero { grid-template-columns: 1.1fr 1fr; gap: 56px; }
+  }
+
+  .hello {
+    height: 1.4em;
+    font-family: var(--mono);
+    font-size: clamp(1rem, 2.4vw, 1.2rem);
+    color: var(--accent);
+  }
+  .word {
+    display: inline-block;
+    transition: opacity 0.28s var(--ease), transform 0.28s var(--ease);
+  }
+  .word::after { content: "_"; margin-left: 2px; opacity: 0.6; }
+  .word.out { opacity: 0; transform: translateY(-8px); }
+  .word.pre { opacity: 0; transform: translateY(8px); transition: none; }
+
+  h1 {
+    margin-top: 10px;
+    font-family: var(--display);
+    font-size: clamp(2.6rem, 7.5vw, 4.6rem);
+    font-weight: 650;
+    letter-spacing: -0.04em;
+    line-height: 1.02;
+  }
+  :global([data-theme="forest"]) h1,
+  :global([data-theme="linen"]) h1,
+  :global([data-theme="paper"]) h1 { font-weight: 400; letter-spacing: -0.02em; font-size: clamp(3rem, 8.5vw, 5.4rem); }
+  :global([data-theme="terminal"]) h1 { font-weight: 600; letter-spacing: -0.05em; font-size: clamp(2.2rem, 6.4vw, 3.9rem); }
+  .last { color: var(--muted); }
+
+  .lede { margin-top: 20px; max-width: 46ch; color: var(--muted); font-size: clamp(1.02rem, 2vw, 1.15rem); }
+
+  .cta { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    height: 42px;
+    padding: 0 18px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--surface);
+    font-size: 15px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: border-color 0.15s, transform 0.15s var(--ease);
+  }
+  .btn:hover { border-color: var(--accent); transform: translateY(-1px); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+
+  .card-col { width: 100%; min-width: 0; }
+
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+  @media (prefers-reduced-motion: reduce) { .word { transition: none; } }
+</style>
+
+<script>
+  // Cycle the greeting. Pauses when the hero is off screen or motion is reduced.
+  const word = document.querySelector<HTMLElement>(".hello .word")!;
+  const list: string[] = JSON.parse(word.dataset.greetings!);
+  let i = 0;
+  let visible = true;
+
+  if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    new IntersectionObserver(([e]) => (visible = e.isIntersecting)).observe(word);
+
+    window.setInterval(() => {
+      if (!visible || document.hidden) return;
+      word.classList.add("out");
+      window.setTimeout(() => {
+        i = (i + 1) % list.length;
+        word.textContent = list[i];
+        word.classList.remove("out");
+        word.classList.add("pre");
+        void word.offsetWidth;
+        word.classList.remove("pre");
+      }, 280);
+    }, 2400);
+  }
+</script>
