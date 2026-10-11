@@ -47,7 +47,7 @@ class Ambient {
   private shift = 0;
 
   playing = false;
-  volume = 0.6;
+  volume = 0.2;
 
   private build() {
     const ctx = new AudioContext();
