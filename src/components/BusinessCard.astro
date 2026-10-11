@@ -20,7 +20,7 @@ import { profile } from "../data/site";
     <div class="face back">
       <div class="pattern" aria-hidden="true"></div>
       <ul class="contact">
-        <li><span>email</span><a href={`mailto:${profile.email}`}>{profile.email}</a></li>
+        <li><span>email</span><a href={`mailto:${profile.email}`} data-copy={profile.email} title="Copy email" aria-label={`Copy email address ${profile.email}`}>{profile.email}</a></li>
         <li><span>github</span><a href={profile.github} target="_blank" rel="noopener">{profile.githubLabel}</a></li>
         <li><span>linkedin</span><a href={profile.linkedin} target="_blank" rel="noopener">{profile.linkedinLabel}</a></li>
         <li><span>resume</span><a href={profile.resume} target="_blank" rel="noopener">Download PDF</a></li>

@@ -65,6 +65,28 @@ button { font: inherit; color: inherit; }
   background: var(--surface-2); color: var(--muted); border: 1px solid var(--line);
 }
 
+/* "Copied" confirmation */
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 28px;
+  z-index: 100;
+  width: max-content;
+  max-width: calc(100vw - 32px);
+  padding: 10px 16px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 14px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  opacity: 0;
+  transform: translate(-50%, 10px);
+  pointer-events: none;
+  transition: opacity 0.2s var(--ease), transform 0.2s var(--ease);
+}
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+
 /* Reveal on scroll: plays once, fades and lifts a few pixels. Content is visible without JS. */
 .js [data-reveal] {
   opacity: 0;
