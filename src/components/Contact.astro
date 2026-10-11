@@ -8,7 +8,7 @@ import { profile } from "../data/site";
     <h2>Contact</h2>
   </div>
   <p class="lede" data-reveal>Open to software engineering roles, internships, and good conversations. Email is the fastest way to reach me.</p>
-  <a class="email" href={`mailto:${profile.email}`} data-reveal>
+  <a class="email" href={`mailto:${profile.email}`} data-copy={profile.email} title="Copy email" aria-label={`Copy email address ${profile.email}`} data-reveal>
     <svg viewBox="0 0 24 24" aria-hidden="true" class="stroke"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="M3 7l9 6 9-6" /></svg>
     <span>{profile.email.split("@")[0]}@<wbr />{profile.email.split("@")[1]}</span>
   </a>
