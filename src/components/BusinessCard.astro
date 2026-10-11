@@ -118,8 +118,14 @@ import { profile } from "../data/site";
   .contact { position: relative; display: grid; gap: 10px; width: 100%; }
   .contact li { display: grid; grid-template-columns: 72px 1fr; align-items: baseline; gap: 8px; }
   .contact span { font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.6; }
-  .contact a { font-size: 14px; text-decoration: none; overflow-wrap: anywhere; }
-  .contact a:hover { text-decoration: underline; }
+  .contact a {
+    justify-self: start;
+    font-size: 14px;
+    text-decoration: none;
+    overflow-wrap: anywhere;
+    transition: color 0.15s;
+  }
+  .contact a:hover { color: var(--accent); }
 
   .flip {
     display: inline-flex;
