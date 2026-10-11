@@ -4,7 +4,7 @@ import "@fontsource-variable/jetbrains-mono";
 import "@fontsource/instrument-serif";
 import "../styles/themes.css";
 import "../styles/global.css";
-import { themes, defaultTheme } from "../data/themes";
+import { themes, defaultDark, defaultLight } from "../data/themes";
 
 interface Props {
   title: string;
@@ -17,7 +17,7 @@ const themeIds = themes.map((t) => t.id);
 ---
 
 <!doctype html>
-<html lang="en" data-theme={defaultTheme}>
+<html lang="en" data-theme={defaultDark}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -31,17 +31,15 @@ const themeIds = themes.map((t) => t.id);
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
 
-    <!-- Apply the saved theme before first paint so there is no flash -->
-    <script is:inline define:vars={{ themeIds, defaultTheme }}>
+    <!-- Apply the saved theme (or the device's light/dark default) before first paint so there is no flash -->
+    <script is:inline define:vars={{ themeIds, defaultDark, defaultLight }}>
       var root = document.documentElement;
       root.classList.add("js");
+      var light = window.matchMedia && matchMedia("(prefers-color-scheme: light)").matches;
+      root.dataset.theme = light ? defaultLight : defaultDark;
       try {
         var saved = localStorage.getItem("theme");
-        if (saved && themeIds.indexOf(saved) !== -1) {
-          root.dataset.theme = saved;
-        } else {
-          root.dataset.theme = defaultTheme;
-        }
+        if (saved && themeIds.indexOf(saved) !== -1) root.dataset.theme = saved;
       } catch (e) {}
     </script>
   </head>

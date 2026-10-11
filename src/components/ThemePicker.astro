@@ -95,6 +95,7 @@ import { themes } from "../data/themes";
 
 <script>
   import { ambient } from "../scripts/ambient";
+  import { defaultDark, defaultLight } from "../data/themes";
 
   const root = document.documentElement;
   const trigger = document.querySelector<HTMLButtonElement>(".picker .trigger")!;
@@ -105,14 +106,27 @@ import { themes } from "../data/themes";
     options.forEach((o) => o.setAttribute("aria-pressed", String(o.dataset.themeId === id)));
   }
 
-  function apply(id: string) {
+  // save is false when following the device setting, so a later device change still applies
+  function apply(id: string, save = true) {
     root.classList.add("theme-swap");
     root.dataset.theme = id;
     mark(id);
     ambient.setTheme(id);
-    try { localStorage.setItem("theme", id); } catch {}
+    if (save) {
+      try { localStorage.setItem("theme", id); } catch {}
+    }
     window.setTimeout(() => root.classList.remove("theme-swap"), 400);
   }
+
+  function hasSavedChoice() {
+    try { return localStorage.getItem("theme") !== null; } catch { return false; }
+  }
+
+  // Follow the device switching between light and dark (e.g. automatic at sunset)
+  // until the visitor picks a theme themselves
+  matchMedia("(prefers-color-scheme: light)").addEventListener("change", (e) => {
+    if (!hasSavedChoice()) apply(e.matches ? defaultLight : defaultDark, false);
+  });
 
   function open(state: boolean) {
     menu.hidden = !state;
