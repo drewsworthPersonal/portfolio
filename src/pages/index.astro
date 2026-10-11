@@ -1,0 +1,23 @@
+---
+import Base from "../layouts/Base.astro";
+import Nav from "../components/Nav.astro";
+import Hero from "../components/Hero.astro";
+import About from "../components/About.astro";
+import Experience from "../components/Experience.astro";
+import Projects from "../components/Projects.astro";
+import Contact from "../components/Contact.astro";
+---
+
+<Base
+  title="Andrew Velazquez | Software engineer"
+  description="Andrew Velazquez, software engineer in San Antonio, TX, building cloud systems, APIs, and data pipelines for a 24/7 freight operation."
+>
+  <Nav />
+  <main id="main">
+    <Hero />
+    <About />
+    <Experience />
+    <Projects />
+    <Contact />
+  </main>
+</Base>

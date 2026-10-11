@@ -1,0 +1,223 @@
+---
+import { profile } from "../data/site";
+---
+
+<div class="stage" data-card-stage>
+  <div class="card" data-card>
+    <div class="face front">
+      <div class="pattern" aria-hidden="true"></div>
+      <div class="top">
+        <span class="mark">{profile.initials}</span>
+        <span class="chip" aria-hidden="true"></span>
+      </div>
+      <div class="bottom">
+        <p class="name">{profile.name}</p>
+        <p class="role">{profile.title} · {profile.location}</p>
+        <p class="domain">{profile.domain}</p>
+      </div>
+      <div class="glare" aria-hidden="true"></div>
+    </div>
+    <div class="face back">
+      <div class="pattern" aria-hidden="true"></div>
+      <ul class="contact">
+        <li><span>email</span><a href={`mailto:${profile.email}`}>{profile.email}</a></li>
+        <li><span>github</span><a href={profile.github} target="_blank" rel="noopener">{profile.githubLabel}</a></li>
+        <li><span>linkedin</span><a href={profile.linkedin} target="_blank" rel="noopener">{profile.linkedinLabel}</a></li>
+        <li><span>resume</span><a href={profile.resume} target="_blank" rel="noopener">Download PDF</a></li>
+      </ul>
+      <div class="glare" aria-hidden="true"></div>
+    </div>
+  </div>
+  <button class="flip" type="button" data-card-flip aria-pressed="false">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 0 1 15.5-6.2L21 8M21 3v5h-5M21 12a9 9 0 0 1-15.5 6.2L3 16M3 21v-5h5" /></svg>
+    <span>Flip card</span>
+  </button>
+</div>
+
+<style>
+  .stage {
+    --rx: 0deg;
+    --ry: 0deg;
+    --flip: 0deg;
+    --gx: 50%;
+    --gy: 30%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+    perspective: 1100px;
+    touch-action: pan-y;
+  }
+  .card {
+    position: relative;
+    width: min(100%, 420px);
+    aspect-ratio: 1.75;
+    transform-style: preserve-3d;
+    transform: rotateX(var(--rx)) rotateY(calc(var(--ry) + var(--flip)));
+    cursor: pointer;
+    will-change: transform;
+  }
+  .face {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    padding: 22px 24px;
+    border-radius: 18px;
+    color: var(--card-ink);
+    background:
+      radial-gradient(120% 140% at 0% 0%, var(--card-b) 0%, transparent 60%),
+      linear-gradient(140deg, var(--card-a), var(--card-b));
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 255, 255, 0.08),
+      0 24px 60px -20px rgba(0, 0, 0, 0.55),
+      0 0 80px -10px var(--glow);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+  .back { transform: rotateY(180deg); display: flex; align-items: center; }
+
+  .pattern {
+    position: absolute;
+    inset: 0;
+    opacity: 0.18;
+    background-image: radial-gradient(currentColor 1px, transparent 1px);
+    background-size: 14px 14px;
+    mask-image: linear-gradient(120deg, transparent 20%, #000 90%);
+    -webkit-mask-image: linear-gradient(120deg, transparent 20%, #000 90%);
+  }
+  .glare {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(circle at var(--gx) var(--gy), var(--card-sheen), transparent 55%);
+    mix-blend-mode: soft-light;
+  }
+
+  .front { display: flex; flex-direction: column; justify-content: space-between; }
+  .top { position: relative; display: flex; justify-content: space-between; align-items: flex-start; }
+  .mark { font-family: var(--mono); font-weight: 600; font-size: 22px; letter-spacing: -0.02em; }
+  .chip {
+    width: 40px;
+    height: 30px;
+    border-radius: 6px;
+    background:
+      linear-gradient(90deg, transparent 32%, rgba(0, 0, 0, 0.25) 32% 36%, transparent 36% 64%, rgba(0, 0, 0, 0.25) 64% 68%, transparent 68%),
+      linear-gradient(0deg, transparent 45%, rgba(0, 0, 0, 0.25) 45% 55%, transparent 55%),
+      linear-gradient(135deg, #f3d48a, #b8913c);
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.2);
+  }
+  .bottom { position: relative; }
+  .name { font-family: var(--display); font-size: clamp(1.35rem, 4.6vw, 1.75rem); font-weight: 600; letter-spacing: -0.02em; line-height: 1.1; }
+  :global([data-theme="forest"]) .name,
+  :global([data-theme="linen"]) .name,
+  :global([data-theme="paper"]) .name { font-weight: 400; font-size: clamp(1.6rem, 5.4vw, 2.1rem); }
+  .role { margin-top: 4px; font-size: 13px; opacity: 0.8; }
+  .domain { margin-top: 10px; font-family: var(--mono); font-size: 12px; opacity: 0.65; }
+
+  .contact { position: relative; display: grid; gap: 10px; width: 100%; }
+  .contact li { display: grid; grid-template-columns: 72px 1fr; align-items: baseline; gap: 8px; }
+  .contact span { font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.6; }
+  .contact a { font-size: 14px; text-decoration: none; overflow-wrap: anywhere; }
+  .contact a:hover { text-decoration: underline; }
+
+  .flip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 12px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--surface);
+    color: var(--muted);
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .flip:hover { color: var(--text); border-color: var(--accent); }
+  .flip svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+</style>
+
+<script>
+  // Tilt toward the pointer and flip on click. The animation loop only runs while
+  // the card is still moving toward its target, so it costs nothing at rest.
+  const stage = document.querySelector<HTMLElement>("[data-card-stage]")!;
+  const card = stage.querySelector<HTMLElement>("[data-card]")!;
+  const flipBtn = stage.querySelector<HTMLButtonElement>("[data-card-flip]")!;
+  const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  const REST = { rx: 4, ry: -10 };
+  const cur = { rx: REST.rx, ry: REST.ry, flip: 0, gx: 50, gy: 30 };
+  const tgt = { ...cur };
+  let raf = 0;
+  let last = 0;
+
+  function render() {
+    stage.style.setProperty("--rx", `${cur.rx.toFixed(2)}deg`);
+    stage.style.setProperty("--ry", `${cur.ry.toFixed(2)}deg`);
+    stage.style.setProperty("--flip", `${cur.flip.toFixed(2)}deg`);
+    stage.style.setProperty("--gx", `${cur.gx.toFixed(1)}%`);
+    stage.style.setProperty("--gy", `${cur.gy.toFixed(1)}%`);
+  }
+
+  function tick(now: number) {
+    const dt = Math.min((now - (last || now)) / 1000, 0.05);
+    last = now;
+    const k = 1 - Math.exp(-dt * 9);
+    let moving = false;
+    for (const key of ["rx", "ry", "flip", "gx", "gy"] as const) {
+      const d = tgt[key] - cur[key];
+      if (Math.abs(d) > 0.02) {
+        cur[key] += d * k;
+        moving = true;
+      } else {
+        cur[key] = tgt[key];
+      }
+    }
+    render();
+    raf = moving ? requestAnimationFrame(tick) : 0;
+    if (!moving) last = 0;
+  }
+
+  function kick() {
+    if (!raf) raf = requestAnimationFrame(tick);
+  }
+
+  function flip() {
+    const flipped = tgt.flip === 0;
+    tgt.flip = flipped ? 180 : 0;
+    flipBtn.setAttribute("aria-pressed", String(flipped));
+    if (reduced) {
+      cur.flip = tgt.flip;
+      render();
+    } else kick();
+  }
+
+  if (!reduced) {
+    card.addEventListener("pointermove", (e) => {
+      if (e.pointerType === "touch") return;
+      const r = card.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width;
+      const y = (e.clientY - r.top) / r.height;
+      tgt.ry = (x - 0.5) * 26;
+      tgt.rx = (0.5 - y) * 18;
+      tgt.gx = x * 100;
+      tgt.gy = y * 100;
+      kick();
+    });
+    card.addEventListener("pointerleave", () => {
+      tgt.rx = REST.rx;
+      tgt.ry = REST.ry;
+      tgt.gx = 50;
+      tgt.gy = 30;
+      kick();
+    });
+  }
+
+  card.addEventListener("click", (e) => {
+    if ((e.target as Element).closest("a")) return;
+    flip();
+  });
+  flipBtn.addEventListener("click", flip);
+
+  render();
+</script>

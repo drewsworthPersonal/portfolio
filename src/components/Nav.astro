@@ -1,0 +1,58 @@
+---
+import ThemePicker from "./ThemePicker.astro";
+import SoundControl from "./SoundControl.astro";
+import { profile } from "../data/site";
+---
+
+<header class="nav">
+  <div class="wrap nav-inner">
+    <a class="brand" href="#top" aria-label="Back to top">{profile.initials}<span>.</span></a>
+    <nav aria-label="Sections">
+      <ul class="links">
+        <li><a href="#about">About</a></li>
+        <li><a href="#experience">Experience</a></li>
+        <li><a href="#projects">Projects</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </nav>
+    <div class="controls">
+      <SoundControl />
+      <ThemePicker />
+    </div>
+  </div>
+</header>
+
+<style>
+  .nav {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: color-mix(in srgb, var(--bg) 92%, transparent);
+    border-bottom: 1px solid var(--line);
+  }
+  .nav-inner { display: flex; align-items: center; gap: 12px; height: 64px; }
+  .brand { font-family: var(--mono); font-weight: 600; font-size: 17px; text-decoration: none; }
+  .brand span { color: var(--accent); }
+  nav { margin-left: auto; }
+  .links { display: flex; gap: 2px; }
+  .links a {
+    display: block;
+    padding: 6px 10px;
+    border-radius: 8px;
+    color: var(--muted);
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: color 0.15s, background-color 0.15s;
+  }
+  .links a:hover { color: var(--text); background: var(--surface-2); }
+  .controls { display: flex; align-items: center; gap: 8px; }
+  @media (max-width: 680px) {
+    .links li:nth-child(1), .links li:nth-child(2) { display: none; }
+    .links a { padding: 6px 8px; font-size: 13px; }
+  }
+  @media (max-width: 420px) {
+    .links { display: none; }
+    .controls { margin-left: auto; }
+  }
+</style>

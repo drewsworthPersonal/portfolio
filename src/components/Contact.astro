@@ -1,0 +1,59 @@
+---
+import { profile } from "../data/site";
+---
+
+<section class="section wrap contact" id="contact">
+  <div class="section-head" data-reveal>
+    <span class="num">04</span>
+    <h2>Contact</h2>
+  </div>
+  <p class="lede" data-reveal>Open to software engineering roles, internships, and good conversations. Email is the fastest way to reach me.</p>
+  <a class="email" href={`mailto:${profile.email}`} data-reveal>{profile.email}</a>
+  <ul class="links" data-reveal>
+    <li><a href={profile.github} target="_blank" rel="noopener">GitHub</a></li>
+    <li><a href={profile.linkedin} target="_blank" rel="noopener">LinkedIn</a></li>
+    <li><a href={profile.resume} target="_blank" rel="noopener">Resume</a></li>
+  </ul>
+</section>
+
+<footer class="footer">
+  <div class="wrap">
+    <p class="mono muted">© {new Date().getFullYear()} {profile.name} · {profile.location}</p>
+  </div>
+</footer>
+
+<style>
+  .section.contact { padding-bottom: 96px; }
+  .lede { max-width: 54ch; color: var(--muted); font-size: 1.1rem; }
+  .email {
+    display: inline-block;
+    margin-top: 22px;
+    font-family: var(--display);
+    font-size: clamp(1.3rem, 5vw, 2.4rem);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--accent);
+    text-decoration: none;
+    overflow-wrap: anywhere;
+    border-bottom: 2px solid color-mix(in srgb, var(--accent) 30%, transparent);
+    transition: border-color 0.2s;
+  }
+  .email:hover { border-color: var(--accent); }
+  :global([data-theme="forest"]) .email,
+  :global([data-theme="linen"]) .email,
+  :global([data-theme="paper"]) .email { font-weight: 400; }
+  .links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 26px; }
+  .links a {
+    display: inline-block;
+    padding: 8px 14px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    color: var(--muted);
+    font-size: 14px;
+    text-decoration: none;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .links a:hover { color: var(--text); border-color: var(--accent); }
+  .footer { padding: 24px 0; border-top: 1px solid var(--line); }
+  .footer p { font-size: 13px; }
+</style>

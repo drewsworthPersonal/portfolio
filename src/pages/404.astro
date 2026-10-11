@@ -1,0 +1,19 @@
+---
+import Base from "../layouts/Base.astro";
+---
+
+<Base title="Page not found | Andrew Velazquez" description="This page does not exist.">
+  <main id="main" class="wrap missing">
+    <p class="mono code">404</p>
+    <h1>Page not found</h1>
+    <p class="muted">That page does not exist.</p>
+    <a href="/">Back to home</a>
+  </main>
+</Base>
+
+<style>
+  .missing { display: grid; align-content: center; gap: 12px; min-height: 80vh; }
+  .code { color: var(--accent); }
+  h1 { font-family: var(--display); font-size: clamp(2.2rem, 6vw, 3.4rem); }
+  a { color: var(--accent); }
+</style>
