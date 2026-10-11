@@ -234,6 +234,24 @@ import { profile } from "../data/site";
   let onScreen = false;
   let base: { x: number; y: number } | null = null;
 
+  // Holding the phone still for STILL_MS re-centers the card on the current position.
+  // Readings within STILL_RANGE degrees of where the stillness began count as still,
+  // so normal hand shake does not reset the timer.
+  const STILL_MS = 1000;
+  const STILL_RANGE = 1.5;
+  let still: { x: number; y: number; since: number; done: boolean } | null = null;
+
+  function trackStillness(x: number, y: number, now: number) {
+    if (!still || Math.abs(x - still.x) > STILL_RANGE || Math.abs(y - still.y) > STILL_RANGE) {
+      still = { x, y, since: now, done: false };
+      return;
+    }
+    if (!still.done && now - still.since >= STILL_MS) {
+      base = { x, y };
+      still.done = true;
+    }
+  }
+
   function onOrient(e: DeviceOrientationEvent) {
     if (e.beta === null || e.gamma === null) return;
     // Map device axes to screen axes so landscape works too
@@ -244,11 +262,9 @@ import { profile } from "../data/site";
     else if (angle === 270) { x = -e.beta; y = e.gamma; }
     else if (angle === 180) { x = -e.gamma; y = -e.beta; }
 
-    // However the phone is held when tilt starts counts as level. The baseline
-    // drifts slowly toward the current grip so the card re-centers over a few seconds.
+    // However the phone is held when tilt starts counts as level
     if (!base) base = { x, y };
-    base.x += (x - base.x) * 0.004;
-    base.y += (y - base.y) * 0.004;
+    trackStillness(x, y, e.timeStamp);
 
     const dx = clamp(x - base.x, -25, 25);
     const dy = clamp(y - base.y, -25, 25);
@@ -269,6 +285,7 @@ import { profile } from "../data/site";
     listening = want;
     if (want) {
       base = null;
+      still = null;
       window.addEventListener("deviceorientation", onOrient);
     } else {
       window.removeEventListener("deviceorientation", onOrient);
@@ -302,7 +319,10 @@ import { profile } from "../data/site";
       onScreen = entry.isIntersecting;
       syncListener();
     }).observe(stage);
-    screen.orientation?.addEventListener("change", () => (base = null));
+    screen.orientation?.addEventListener("change", () => {
+      base = null;
+      still = null;
+    });
     enableTilt(false);
   }
 
