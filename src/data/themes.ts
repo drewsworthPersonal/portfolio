@@ -17,5 +17,6 @@ export const themes: Theme[] = [
   { id: "midnight", name: "Midnight", note: "Navy, violet, pink", scheme: "dark", swatch: ["#0a0f25", "#141c40", "#f08bd0"] },
 ];
 
-// First-time visitors see this theme until they pick another
-export const defaultTheme = "graphite";
+// Until a visitor picks a theme, the site follows their device's light or dark setting
+export const defaultDark = "graphite";
+export const defaultLight = "sky";
