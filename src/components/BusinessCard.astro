@@ -97,7 +97,8 @@ import { profile } from "../data/site";
 
   .front { display: flex; flex-direction: column; justify-content: space-between; }
   .top { position: relative; display: flex; justify-content: space-between; align-items: flex-start; }
-  .top :global(.mark) { display: block; }
+  /* Same color as the logo in the header */
+  .top :global(.mark) { display: block; color: var(--accent); }
   .chip {
     width: 40px;
     height: 30px;
