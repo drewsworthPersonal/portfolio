@@ -1,0 +1,177 @@
+---
+// Profile panel that takes over from the hero and the nav: once the hero section has
+// scrolled up under the nav, the nav slides away and this panel slides in on the left with
+// the brand, name, title, links, and the sound and theme controls. Scrolling back up
+// reverses it. Wide screens only (1200px+); the page reserves a left column for it
+// (see global.css).
+import Brand from "./Brand.astro";
+import Icon from "./Icon.astro";
+import { profile } from "../data/site";
+---
+
+<aside class="rail" aria-label="Profile" data-rail>
+  <Brand />
+  <p class="name">{profile.name}</p>
+  <p class="role">{profile.title}</p>
+  <p class="place">{profile.location}</p>
+  <ul class="links">
+    <li>
+      <a href={profile.github} target="_blank" rel="noopener"><Icon name="github" />GitHub</a>
+    </li>
+    <li>
+      <a href={profile.linkedin} target="_blank" rel="noopener"><Icon name="linkedin" />LinkedIn</a>
+    </li>
+    <li>
+      <a href={profile.resume} target="_blank" rel="noopener"><Icon name="resume" />Resume</a>
+    </li>
+    <li>
+      <a
+        href={`mailto:${profile.email}`}
+        data-copy={profile.email}
+        title="Copy email"
+        aria-label={`Copy email address ${profile.email}`}
+      >
+        <Icon name="mail" />Copy email
+      </a>
+    </li>
+  </ul>
+  <!-- The nav's sound and theme controls are moved here while the panel shows -->
+  <div class="tools" data-rail-tools></div>
+</aside>
+
+<style>
+  .rail { display: none; }
+
+  @media (min-width: 1200px) {
+    .rail {
+      position: fixed;
+      top: 48px;
+      /* Lines up with the left column the sections leave free (see global.css) */
+      left: calc(max(0px, (100vw - 1320px) / 2) + 40px);
+      z-index: 40;
+      display: block;
+      width: 220px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateX(28px);
+      transition: opacity 0.35s var(--ease), transform 0.45s var(--ease), visibility 0s linear 0.45s;
+    }
+    .rail.shown {
+      opacity: 1;
+      visibility: visible;
+      transform: none;
+      transition: opacity 0.35s var(--ease), transform 0.45s var(--ease), visibility 0s;
+    }
+  }
+
+  .name {
+    margin-top: 28px;
+    font-family: var(--display);
+    font-size: 1.45rem;
+    font-weight: 650;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+  }
+  :global([data-theme="paper"]) .name { font-weight: 400; font-size: 1.7rem; letter-spacing: -0.01em; }
+  .role { margin-top: 8px; font-size: 14px; }
+  .place { font-size: 13px; color: var(--muted); }
+
+  .links { display: grid; gap: 4px; margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--line); }
+  .links a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 0;
+    color: var(--muted);
+    font-size: 14px;
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+  .links a:hover { color: var(--text); }
+  .links :global(.icon) { width: 16px; height: 16px; }
+
+  .tools {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin-top: 18px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+  }
+  .tools:empty { display: none; }
+  /* The theme menu opens upward and to the right here, so it stays on screen */
+  .tools :global(.menu) {
+    top: auto;
+    right: auto;
+    bottom: calc(100% + 8px);
+    left: 0;
+    transform-origin: bottom left;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .rail, .rail.shown { transform: none; transition: none; }
+  }
+</style>
+
+<script>
+  // Show the panel (and hide the nav) once the hero section has scrolled away;
+  // reverse it above that. The nav's sound and theme controls are moved, not copied,
+  // so their state (open menu, volume) carries over.
+  const root = document.documentElement;
+  const rail = document.querySelector<HTMLElement>("[data-rail]")!;
+  const tools = rail.querySelector<HTMLElement>("[data-rail-tools]")!;
+  const navControls = document.querySelector<HTMLElement>("[data-nav-controls]");
+  const about = document.querySelector<HTMLElement>("#about");
+  const wide = matchMedia("(min-width: 1200px)");
+  let pastHero = false;
+
+  function moveControls(toRail: boolean) {
+    if (!navControls) return;
+    const [from, to] = toRail ? [navControls, tools] : [tools, navControls];
+    while (from.firstElementChild) to.append(from.firstElementChild);
+  }
+
+  function update() {
+    const show = pastHero && wide.matches;
+    if (show === rail.classList.contains("shown")) return;
+    rail.classList.toggle("shown", show);
+    root.classList.toggle("rail-on", show);
+    moveControls(show);
+  }
+
+  // Switch right as the hero section ends: when its bottom edge slides up under the
+  // nav. The About link's landing spot is just past that, so clicking About switches
+  // too (the min() guarantees it if the layout ever changes).
+  const hero = document.querySelector<HTMLElement>("#top");
+  const nav = document.querySelector<HTMLElement>(".nav");
+
+  function switchAt() {
+    const navHeight = nav?.offsetHeight ?? 64;
+    const heroEnds = hero ? hero.getBoundingClientRect().bottom + window.scrollY - navHeight : Infinity;
+    const margin = parseFloat(getComputedStyle(about!).scrollMarginTop) || 0;
+    const aboutLands = about!.getBoundingClientRect().top + window.scrollY - margin;
+    return Math.min(heroEnds, aboutLands);
+  }
+
+  if (about) {
+    let queued = false;
+    const check = () => {
+      queued = false;
+      pastHero = window.scrollY >= switchAt() - 2; // small allowance for rounding
+      update();
+    };
+    window.addEventListener(
+      "scroll",
+      () => {
+        if (queued) return;
+        queued = true;
+        requestAnimationFrame(check);
+      },
+      { passive: true },
+    );
+    window.addEventListener("resize", check);
+    check();
+  }
+  wide.addEventListener("change", update);
+</script>

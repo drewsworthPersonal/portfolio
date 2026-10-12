@@ -1,0 +1,27 @@
+---
+// Logo plus the "drewsworth.dev" wordmark, linking back to the top.
+// Used in the nav and the profile sidebar.
+import Logo from "./Logo.astro";
+
+interface Props {
+  // Hide the wordmark on narrow screens (the nav needs the room)
+  collapse?: boolean;
+}
+
+const { collapse = false } = Astro.props;
+---
+
+<a class:list={["brand", { collapse }]} href="#top" aria-label="drewsworth.dev, back to top">
+  <Logo size={30} class="mark" />
+  <span class="word" aria-hidden="true">drewsworth<span>.dev</span></span>
+</a>
+
+<style>
+  .brand { display: flex; align-items: center; gap: 10px; color: var(--text); text-decoration: none; }
+  .brand :global(.mark) { color: var(--accent); flex: none; }
+  .word { font-family: var(--mono); font-weight: 600; font-size: 15px; letter-spacing: -0.01em; }
+  .word span { color: var(--accent); }
+  /* Graphite's accent is white like the text, so use its grey to set .dev apart */
+  :global([data-theme="graphite"]) .word span { color: var(--muted); }
+  @media (max-width: 860px) { .collapse .word { display: none; } }
+</style>
