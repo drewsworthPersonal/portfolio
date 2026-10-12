@@ -1,0 +1,30 @@
+# Rebuilds the site on Cloudflare Pages once a day so build-time data, like the
+# GitHub contributions graph, stays current without a code push.
+#
+# Needs a repository secret named CLOUDFLARE_DEPLOY_HOOK_URL holding the Pages deploy
+# hook URL (https://api.cloudflare.com/client/v4/pages/webhooks/deploy_hooks/...).
+
+name: Daily rebuild
+
+on:
+  schedule:
+    - cron: "0 11 * * *" # 11:00 UTC, 6 AM in San Antonio (CDT)
+  workflow_dispatch: # adds a "Run workflow" button on the Actions tab
+
+permissions: {}
+
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Cloudflare Pages build
+        env:
+          HOOK_URL: ${{ secrets.CLOUDFLARE_DEPLOY_HOOK_URL }}
+        run: |
+          if [ -z "$HOOK_URL" ]; then
+            echo "::error::Secret CLOUDFLARE_DEPLOY_HOOK_URL is not set"
+            exit 1
+          fi
+          curl --fail --silent --show-error --request POST "$HOOK_URL"
+          echo
+          echo "Build triggered"
