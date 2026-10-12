@@ -1,0 +1,72 @@
+<!--
+  Page background: a fixed dot grid (the same dots as the business card) and, on
+  desktop, a spotlight that lights up the dots near the cursor.
+-->
+<div class="backdrop" aria-hidden="true">
+  <div class="grid"></div>
+  <div class="grid spot"></div>
+</div>
+
+<style>
+  .backdrop {
+    --mx: 50%;
+    --my: -50%;
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  /* Dots, strongest near the top of the screen and fading out toward the bottom */
+  .grid {
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(color-mix(in srgb, var(--text) 20%, transparent) 1px, transparent 1.4px);
+    background-size: 26px 26px;
+    -webkit-mask-image: radial-gradient(ellipse 90% 75% at 50% 0%, #000 25%, transparent 100%);
+    mask-image: radial-gradient(ellipse 90% 75% at 50% 0%, #000 25%, transparent 100%);
+  }
+
+  /* Brighter copy of the grid, only visible in a circle around the cursor */
+  .spot {
+    background-image: radial-gradient(color-mix(in srgb, var(--accent) 70%, transparent) 1.2px, transparent 1.6px);
+    -webkit-mask-image: radial-gradient(circle 220px at var(--mx) var(--my), #000, transparent 100%);
+    mask-image: radial-gradient(circle 220px at var(--mx) var(--my), #000, transparent 100%);
+  }
+
+  @media (hover: none), (prefers-reduced-motion: reduce) {
+    .spot { display: none; }
+  }
+</style>
+
+<script>
+  const backdrop = document.querySelector<HTMLElement>(".backdrop")!;
+
+  // Move the grid spotlight with the cursor, at most once per frame. Desktop only.
+  if (matchMedia("(hover: hover) and (prefers-reduced-motion: no-preference)").matches) {
+    let x = 0;
+    let y = 0;
+    let queued = false;
+    window.addEventListener(
+      "pointermove",
+      (e) => {
+        if (e.pointerType !== "mouse") return;
+        x = e.clientX;
+        y = e.clientY;
+        if (queued) return;
+        queued = true;
+        requestAnimationFrame(() => {
+          queued = false;
+          backdrop.style.setProperty("--mx", `${x}px`);
+          backdrop.style.setProperty("--my", `${y}px`);
+        });
+      },
+      { passive: true },
+    );
+    // Hide the spotlight when the cursor leaves the window
+    document.documentElement.addEventListener("mouseleave", () => {
+      backdrop.style.setProperty("--my", "-50%");
+    });
+  }
+</script>
