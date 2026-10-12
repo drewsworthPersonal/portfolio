@@ -29,10 +29,17 @@ import { profile } from "../data/site";
       <div class="glare" aria-hidden="true"></div>
     </div>
   </div>
-  <button class="flip" type="button" data-card-flip aria-pressed="false">
-    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 0 1 15.5-6.2L21 8M21 3v5h-5M21 12a9 9 0 0 1-15.5 6.2L3 16M3 21v-5h5" /></svg>
-    <span>Flip card</span>
-  </button>
+  <div class="actions">
+    <button class="flip" type="button" data-card-flip aria-pressed="false">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 0 1 15.5-6.2L21 8M21 3v5h-5M21 12a9 9 0 0 1-15.5 6.2L3 16M3 21v-5h5" /></svg>
+      <span>Flip card</span>
+    </button>
+    <button class="flip" type="button" data-card-clear hidden>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3" /></svg>
+      <span>Clear drawing</span>
+    </button>
+  </div>
+  <p class="hint" data-card-hint>Click to flip · hold to draw</p>
 </div>
 
 <style>
@@ -58,6 +65,19 @@ import { profile } from "../data/site";
     transform: rotateX(var(--rx)) rotateY(calc(var(--ry) + var(--flip)));
     cursor: pointer;
     will-change: transform;
+    /* Holding to draw must not select text or open long-press menus */
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+  }
+  .card.drawing { cursor: crosshair; }
+  /* Drawing layer, added by card-drawing.ts */
+  .face :global(.ink) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
   }
   .face {
     position: absolute;
@@ -141,15 +161,21 @@ import { profile } from "../data/site";
     cursor: pointer;
   }
   .flip:hover { color: var(--text); border-color: var(--accent); }
+  .flip[hidden] { display: none; }
   .flip svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+  .hint { margin-top: -6px; font-size: 12px; color: var(--muted); }
 </style>
 
 <script>
+  import { setupCardDrawing } from "../scripts/card-drawing";
+
   // Tilt toward the pointer and flip on click. The animation loop only runs while
   // the card is still moving toward its target, so it costs nothing at rest.
   const stage = document.querySelector<HTMLElement>("[data-card-stage]")!;
   const card = stage.querySelector<HTMLElement>("[data-card]")!;
   const flipBtn = stage.querySelector<HTMLButtonElement>("[data-card-flip]")!;
+  const clearBtn = stage.querySelector<HTMLButtonElement>("[data-card-clear]")!;
   const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   const REST = { rx: 4, ry: -10 };
@@ -157,6 +183,8 @@ import { profile } from "../data/site";
   const tgt = { ...cur };
   let raf = 0;
   let last = 0;
+  // True while a press or drawing is in progress; mouse and phone tilt pause
+  let holding = false;
 
   function render() {
     stage.style.setProperty("--rx", `${cur.rx.toFixed(2)}deg`);
@@ -201,7 +229,7 @@ import { profile } from "../data/site";
 
   if (!reduced) {
     card.addEventListener("pointermove", (e) => {
-      if (e.pointerType === "touch") return;
+      if (e.pointerType === "touch" || holding) return;
       const r = card.getBoundingClientRect();
       const x = (e.clientX - r.left) / r.width;
       const y = (e.clientY - r.top) / r.height;
@@ -212,6 +240,7 @@ import { profile } from "../data/site";
       kick();
     });
     card.addEventListener("pointerleave", () => {
+      if (holding) return;
       tgt.rx = REST.rx;
       tgt.ry = REST.ry;
       tgt.gx = 50;
@@ -256,7 +285,7 @@ import { profile } from "../data/site";
   }
 
   function onOrient(e: DeviceOrientationEvent) {
-    if (e.beta === null || e.gamma === null) return;
+    if (e.beta === null || e.gamma === null || holding) return;
     // Map device axes to screen axes so landscape works too
     const angle = screen.orientation?.angle ?? 0;
     let x = e.gamma;
@@ -329,8 +358,37 @@ import { profile } from "../data/site";
     enableTilt(false);
   }
 
+  // Press and hold to draw. The card snaps flat while drawing so the ink lands
+  // exactly under the pointer, and tilt resumes on release.
+  const drawingCtl = setupCardDrawing(card, clearBtn, {
+    activeFace: () => card.querySelector<HTMLElement>(tgt.flip === 180 ? ".back" : ".front")!,
+    onPress: () => {
+      holding = true;
+    },
+    onDrawStart: () => {
+      cancelAnimationFrame(raf);
+      raf = 0;
+      cur.rx = tgt.rx = 0;
+      cur.ry = tgt.ry = 0;
+      cur.flip = tgt.flip;
+      cur.gx = tgt.gx = 50;
+      cur.gy = tgt.gy = 30;
+      render();
+    },
+    onRelease: () => {
+      holding = false;
+      base = null; // phone tilt treats the current grip as level again
+      still = null;
+    },
+  });
+
+  if (matchMedia("(pointer: coarse)").matches) {
+    stage.querySelector("[data-card-hint]")!.textContent = "Tap to flip · hold to draw";
+  }
+
   card.addEventListener("click", (e) => {
     if ((e.target as Element).closest("a")) return;
+    if (drawingCtl.takeSuppressedClick()) return; // a drawing just ended: don't flip
     enableTilt(true);
     flip();
   });
