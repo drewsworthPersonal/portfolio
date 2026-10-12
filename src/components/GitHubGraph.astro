@@ -1,0 +1,142 @@
+---
+// GitHub contribution graph for the last year, built at build time from
+// src/data/github.ts. Squares use the theme's accent at four strengths.
+import { getContributions, type Day } from "../data/github";
+
+interface Props {
+  login: string;
+  url: string;
+}
+
+const { login, url } = Astro.props;
+const data = await getContributions(login);
+
+const fmt = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
+const monthFmt = new Intl.DateTimeFormat("en-US", { month: "short", timeZone: "UTC" });
+const asDate = (d: Day) => new Date(`${d.date}T00:00:00Z`);
+
+// A month label goes above the first week that starts in a new month
+const months: { col: number; label: string }[] = [];
+data?.weeks.forEach((week, i) => {
+  const first = asDate(week[0]);
+  const prev = i > 0 ? asDate(data.weeks[i - 1][0]) : null;
+  if (!prev || first.getUTCMonth() !== prev.getUTCMonth()) {
+    // Skip a label that would crowd the next one
+    if (i < data.weeks.length - 2) months.push({ col: i + 1, label: monthFmt.format(first) });
+  }
+});
+if (months.length > 1 && months[1].col - months[0].col < 3) months.shift();
+
+const tip = (d: Day) => `${d.count === 0 ? "No" : d.count} contribution${d.count === 1 ? "" : "s"} on ${fmt.format(asDate(d))}`;
+---
+
+{
+  data && (
+    <figure class="gh" data-reveal>
+      <figcaption class="head">
+        <span>
+          <strong>{data.total.toLocaleString("en-US")}</strong> contributions in the last year
+        </span>
+        <a href={url} target="_blank" rel="noopener" class="mono">
+          @{login} ↗
+        </a>
+      </figcaption>
+      <div class="scroller" data-gh-scroller>
+        <div
+          class="graph"
+          role="img"
+          aria-label={`${data.total} GitHub contributions in the last year`}
+          style={`--weeks: ${data.weeks.length}`}
+        >
+          {months.map((m) => (
+            <span class="month" style={`grid-column: ${m.col} / span 3`} aria-hidden="true">
+              {m.label}
+            </span>
+          ))}
+          {data.weeks.map((week, w) =>
+            week.map((d) => (
+              <span
+                class={`day l${d.level}`}
+                style={`grid-column: ${w + 1}; grid-row: ${asDate(d).getUTCDay() + 2}`}
+                title={tip(d)}
+              />
+            )),
+          )}
+        </div>
+      </div>
+      <div class="legend" aria-hidden="true">
+        <span>Less</span>
+        <span class="day l0" />
+        <span class="day l1" />
+        <span class="day l2" />
+        <span class="day l3" />
+        <span class="day l4" />
+        <span>More</span>
+      </div>
+    </figure>
+  )
+}
+
+<style>
+  .gh {
+    margin: 40px 0 0;
+    padding: 20px 22px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--surface);
+  }
+  .head {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 6px 16px;
+    margin-bottom: 14px;
+    font-size: 14px;
+    color: var(--muted);
+  }
+  .head strong { color: var(--text); font-weight: 600; }
+  /* Same treatment as the business card links: no underline, theme color on hover */
+  .head a { font-size: 13px; color: var(--text); text-decoration: none; transition: color 0.15s; }
+  .head a:hover { color: var(--card-link-hover); }
+
+  /* Wide graph scrolls sideways on small screens. Right-to-left scrolling makes the
+     container start at its right end, so the latest weeks show first at any width;
+     the graph itself stays left-to-right. */
+  .scroller { overflow-x: auto; padding-bottom: 4px; direction: rtl; }
+  .graph {
+    direction: ltr;
+    margin-right: auto; /* when it fits, sit on the left instead of the right-to-left default */
+    --cell: 11px;
+    display: grid;
+    grid-template-columns: repeat(var(--weeks), var(--cell));
+    grid-template-rows: 14px repeat(7, var(--cell));
+    gap: 3px;
+    width: max-content;
+  }
+  @media (min-width: 1000px) { .graph { --cell: 12px; } }
+
+  .month { grid-row: 1; font-size: 11px; line-height: 1; color: var(--muted); white-space: nowrap; }
+
+  .day {
+    width: var(--cell, 11px);
+    height: var(--cell, 11px);
+    border-radius: 3px;
+  }
+  .l0 { background: var(--surface-2); box-shadow: inset 0 0 0 1px var(--line); }
+  .l1 { background: color-mix(in srgb, var(--accent) 30%, var(--surface-2)); }
+  .l2 { background: color-mix(in srgb, var(--accent) 52%, var(--surface-2)); }
+  .l3 { background: color-mix(in srgb, var(--accent) 75%, var(--surface-2)); }
+  .l4 { background: var(--accent); }
+
+  .legend {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 4px;
+    margin-top: 10px;
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .legend span:first-child { margin-right: 4px; }
+  .legend span:last-child { margin-left: 4px; }
+</style>

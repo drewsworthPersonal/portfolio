@@ -1,15 +1,12 @@
 ---
 import ThemePicker from "./ThemePicker.astro";
 import SoundControl from "./SoundControl.astro";
-import Logo from "./Logo.astro";
+import Brand from "./Brand.astro";
 ---
 
 <header class="nav">
   <div class="wrap nav-inner">
-    <a class="brand" href="#top" aria-label="drewsworth.dev, back to top">
-      <Logo size={30} class="mark" />
-      <span class="word" aria-hidden="true">drewsworth<span>.dev</span></span>
-    </a>
+    <Brand collapse />
     <nav aria-label="Sections">
       <ul class="links">
         <li><a href="#about">About</a></li>
@@ -18,7 +15,8 @@ import Logo from "./Logo.astro";
         <li><a href="#contact">Contact</a></li>
       </ul>
     </nav>
-    <div class="controls">
+    <!-- On wide screens these move into the profile sidebar while it is showing -->
+    <div class="controls" data-nav-controls>
       <SoundControl />
       <ThemePicker />
     </div>
@@ -32,15 +30,17 @@ import Logo from "./Logo.astro";
     z-index: 50;
     background: color-mix(in srgb, var(--bg) 92%, transparent);
     border-bottom: 1px solid var(--line);
+    transition: transform 0.35s var(--ease), visibility 0s;
+  }
+  /* Wide screens: the nav slides away while the profile sidebar is showing */
+  @media (min-width: 1200px) {
+    :global(html.rail-on) .nav {
+      transform: translateY(-100%);
+      visibility: hidden;
+      transition: transform 0.35s var(--ease), visibility 0s linear 0.35s;
+    }
   }
   .nav-inner { display: flex; align-items: center; gap: 12px; height: 64px; }
-  .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
-  .brand :global(.mark) { color: var(--accent); flex: none; }
-  .word { font-family: var(--mono); font-weight: 600; font-size: 15px; letter-spacing: -0.01em; }
-  .word span { color: var(--accent); }
-  /* Graphite's accent is white like the text, so use its grey to set .dev apart */
-  :global([data-theme="graphite"]) .word span { color: var(--muted); }
-  @media (max-width: 860px) { .word { display: none; } }
   nav { margin-left: auto; }
   .links { display: flex; gap: 2px; }
   .links a {
@@ -62,5 +62,8 @@ import Logo from "./Logo.astro";
   @media (max-width: 420px) {
     .links { display: none; }
     .controls { margin-left: auto; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .nav, :global(html.rail-on) .nav { transition: none; }
   }
 </style>

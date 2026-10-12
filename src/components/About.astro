@@ -1,5 +1,9 @@
 ---
-import { about, stats, education } from "../data/site";
+import GitHubGraph from "./GitHubGraph.astro";
+import { about, stats, education, profile } from "../data/site";
+
+// GitHub username from the profile URL, e.g. https://github.com/drewsworthh
+const githubLogin = new URL(profile.github).pathname.replace(/\//g, "");
 ---
 
 <section class="section wrap" id="about">
@@ -19,6 +23,8 @@ import { about, stats, education } from "../data/site";
       ))
     }
   </dl>
+
+  <GitHubGraph login={githubLogin} url={profile.github} />
 
   <ul class="edu" data-reveal>
     {
