@@ -96,6 +96,7 @@ import { themes } from "../data/themes";
 <script>
   import { ambient } from "../scripts/ambient";
   import { defaultDark, defaultLight } from "../data/themes";
+  import { syncThemeChrome } from "../scripts/favicon";
 
   const root = document.documentElement;
   const trigger = document.querySelector<HTMLButtonElement>(".picker .trigger")!;
@@ -112,6 +113,7 @@ import { themes } from "../data/themes";
     root.dataset.theme = id;
     mark(id);
     ambient.setTheme(id);
+    syncThemeChrome();
     if (save) {
       try { localStorage.setItem("theme", id); } catch {}
     }
@@ -136,6 +138,7 @@ import { themes } from "../data/themes";
 
   mark(root.dataset.theme ?? "");
   ambient.setTheme(root.dataset.theme ?? "");
+  syncThemeChrome();
 
   trigger.addEventListener("click", () => open(menu.hidden));
   options.forEach((o) => o.addEventListener("click", () => apply(o.dataset.themeId!)));

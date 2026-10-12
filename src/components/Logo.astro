@@ -1,0 +1,25 @@
+---
+import { logoPaths, logoViewBox } from "../data/logo";
+
+interface Props {
+  size?: number | string;
+  class?: string;
+  label?: string;
+}
+
+const { size = 28, class: className, label } = Astro.props;
+---
+
+<svg
+  class={className}
+  viewBox={logoViewBox}
+  width={size}
+  height={size}
+  role={label ? "img" : undefined}
+  aria-label={label}
+  aria-hidden={label ? undefined : "true"}
+>
+  <g fill="currentColor" fill-rule="evenodd">
+    {logoPaths.map((d) => <path d={d} />)}
+  </g>
+</svg>
