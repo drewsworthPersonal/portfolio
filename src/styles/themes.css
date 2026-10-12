@@ -18,6 +18,7 @@
   --card-b: #6a2f7e;
   --card-ink: #f6eaff;
   --card-sheen: rgba(240, 139, 208, 0.35);
+  --card-link-hover: #f08bd0;
   color-scheme: dark;
 }
 
@@ -37,6 +38,7 @@
   --card-b: #3a3a3a;
   --card-ink: #ffffff;
   --card-sheen: rgba(255, 255, 255, 0.28);
+  --card-link-hover: #a3a3a3;
   color-scheme: dark;
 }
 
@@ -55,6 +57,7 @@
   --card-b: #bfe3ff;
   --card-ink: #0f1b2d;
   --card-sheen: rgba(255, 255, 255, 0.8);
+  --card-link-hover: #0b84d8;
   color-scheme: light;
 }
 
@@ -73,6 +76,7 @@
   --card-b: #0f2a1b;
   --card-ink: #7dfcb6;
   --card-sheen: rgba(57, 229, 140, 0.22);
+  --card-link-hover: #1fa463;
   color-scheme: dark;
 }
 
@@ -91,5 +95,6 @@
   --card-b: #efe4cd;
   --card-ink: #1d1a16;
   --card-sheen: rgba(255, 255, 255, 0.75);
+  --card-link-hover: #b3261e;
   color-scheme: light;
 }
