@@ -62,7 +62,7 @@ const og = page(
   h1 { margin-top: 30px; font-size: 66px; font-weight: 700; letter-spacing: -0.035em; }
   .role { margin-top: 10px; font-size: 28px; color: #a3a3a3; }
   .url { margin-top: 26px; padding: 10px 22px; border: 1px solid #2a2a2a; border-radius: 999px; font-family: Mono, monospace; font-size: 26px; font-weight: 500; }
-  .url span { color: #38aaf5; }`,
+  .url span { color: #a3a3a3; }`,
 );
 
 // 180x180 iPhone home-screen icon. iOS rounds the corners itself, so the tile is full-bleed.
