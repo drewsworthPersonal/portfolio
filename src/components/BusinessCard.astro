@@ -1,4 +1,5 @@
 ---
+import Logo from "./Logo.astro";
 import { profile } from "../data/site";
 ---
 
@@ -7,7 +8,7 @@ import { profile } from "../data/site";
     <div class="face front">
       <div class="pattern" aria-hidden="true"></div>
       <div class="top">
-        <span class="mark">{profile.initials}</span>
+        <Logo size={34} class="mark" label="drewsworth.dev logo" />
         <span class="chip" aria-hidden="true"></span>
       </div>
       <div class="bottom">
@@ -96,7 +97,7 @@ import { profile } from "../data/site";
 
   .front { display: flex; flex-direction: column; justify-content: space-between; }
   .top { position: relative; display: flex; justify-content: space-between; align-items: flex-start; }
-  .mark { font-family: var(--mono); font-weight: 600; font-size: 22px; letter-spacing: -0.02em; }
+  .top :global(.mark) { display: block; }
   .chip {
     width: 40px;
     height: 30px;
