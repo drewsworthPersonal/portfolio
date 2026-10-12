@@ -125,7 +125,8 @@ import { profile } from "../data/site";
     overflow-wrap: anywhere;
     transition: color 0.15s;
   }
-  .contact a:hover { color: var(--accent); }
+  /* Each theme sets its own hover color (Graphite grey, Terminal darker green, others the accent) */
+  .contact a:hover { color: var(--card-link-hover); }
 
   .flip {
     display: inline-flex;
