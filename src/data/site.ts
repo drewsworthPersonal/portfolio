@@ -32,13 +32,13 @@ export const greetings = [
 ];
 
 export const about =
-  "I build and run cloud systems for a 24/7 freight brokerage. I cut server latency 88%, designed a 44-table PostgreSQL schema for our move off BigQuery, and shipped Supplier Bridge, a sealed-bid procurement platform used by four outside companies.";
+  "I build production AI and cloud systems for a 24/7 freight brokerage. I designed Data Dump, an LLM pipeline that turns ops chat and email into verified TMS records, run a multi-agent platform where local models do the work and Claude reviews it, and cut server latency 88% along the way.";
 
 export const stats = [
+  { value: "24,656", label: "messages processed by AI" },
+  { value: "43", label: "draft PRs opened by agents" },
+  { value: "414", label: "tests on the AI pipeline" },
   { value: "88%+", label: "latency cut" },
-  { value: "~9,900", label: "loads synced in 65s" },
-  { value: "44", label: "Postgres tables designed" },
-  { value: "212", label: "security rule tests" },
 ];
 
 export const jobs = [
@@ -49,13 +49,15 @@ export const jobs = [
     when: "Jun 2026 to present",
     summary: "Four-person team owning application development and DevOps for a 24/7 freight brokerage.",
     points: [
+      "Built a multi-agent platform on a dual-GPU workstation: local Qwen and Gemma models on llama.cpp do the work and Claude reviewers approve each plan. Its agents have opened 43 draft PRs (bug fixes and SOPs), guarded by a GitHub App and push blocks.",
+      "Shipped a helpdesk agent on a local LLM that files IT tickets from Telegram and email, with a custom tool plugin, a staff name matcher 100% correct on 274 employees, and a 32-scenario eval suite.",
+      "Designed and shipped Data Dump, an LLM pipeline that turns chat and email load updates into verified TMS notes and documents, using Claude Haiku for intake, Sonnet for export and document review, and the Batches API for backlog. Cleared a 24,656-message backlog for under $40, with eval-gated CI and 414 tests.",
       "Cut server latency by over 88% by tracing production 504s to a Vite dev server in production, shipping an optimized static build, and moving blocking BigQuery queries off live request paths.",
       "Designed a normalized 44-table Cloud SQL for PostgreSQL schema, splitting a 131-column loads table into a 31-column core plus 7 satellite tables.",
       "Launched Supplier Bridge, a sealed-bid freight procurement platform, with Firestore security rules (212 tests), Twilio SMS and push alerts, and a bidding stress harness.",
       "Integrated the LoadStop TMS REST API into Bravo Matrix and reworked rate-limited syncs to pull about 9,900 loads in 65 seconds.",
-      "Built REST APIs across brokerage microservices, including EDI X12 204 load tenders, and deployed them to Cloud Run with a GitHub CI/CD pipeline.",
     ],
-    tags: ["TypeScript", "Node.js", "PostgreSQL", "BigQuery", "Cloud Run", "Firebase", "EDI X12"],
+    tags: ["Claude API", "LLM evals", "Python", "TypeScript", "PostgreSQL", "Cloud Run", "Terraform", "Firebase"],
   },
   {
     role: "Software Developer I",
@@ -72,6 +74,24 @@ export const jobs = [
 ];
 
 export const projects = [
+  {
+    name: "Data Dump",
+    kicker: "GH Logistics · production AI",
+    blurb: "LLM pipeline that reads ops chat and email, matches each update to a load, and writes verified TMS notes and documents. Claude Haiku for intake, Sonnet for export and review, evals in CI, and personal data masked before any model call.",
+    tags: ["Claude API", "Python", "FastAPI", "Cloud Run", "Terraform"],
+  },
+  {
+    name: "Multi-agent platform",
+    kicker: "GH Logistics · internal",
+    blurb: "Local Qwen and Gemma models on llama.cpp do the work, and Claude reviewers approve every plan before anything runs. Agents can only open draft PRs; 43 so far, for bug fixes and SOPs.",
+    tags: ["llama.cpp", "Claude", "OpenClaw", "GitHub App"],
+  },
+  {
+    name: "Helpdesk agent",
+    kicker: "GH Logistics · company-wide",
+    blurb: "Staff message it on Telegram or email to file IT tickets. Custom tools, a preview-then-confirm guard so it can't invent ticket numbers, and a name matcher 100% correct on 274 employees.",
+    tags: ["Local LLM", "TypeScript", "Apps Script", "Evals"],
+  },
   {
     name: "AQUA",
     kicker: "Rowdy Hacks 2026 · 24 hours",

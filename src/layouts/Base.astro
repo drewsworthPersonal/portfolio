@@ -10,9 +10,11 @@ import Backdrop from "../components/Backdrop.astro";
 interface Props {
   title: string;
   description: string;
+  // "article" for blog posts, so link previews show them as articles
+  ogType?: "website" | "article";
 }
 
-const { title, description } = Astro.props;
+const { title, description, ogType = "website" } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site).href;
 // Apps require an absolute URL for the preview image
 const ogImage = new URL("/og-image.png", Astro.site).href;
@@ -30,10 +32,11 @@ const themeIds = themes.map((t) => t.id);
     <link rel="canonical" href={canonical} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="alternate" type="application/rss+xml" title="drewsworth.dev blog" href="/rss.xml" />
     <meta name="theme-color" content="#0a0a0a" />
 
     <!-- Link previews (iMessage, WhatsApp, Instagram, Telegram, Slack, LinkedIn, X) -->
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={ogType} />
     <meta property="og:site_name" content="drewsworth.dev" />
     <meta property="og:url" content={canonical} />
     <meta property="og:title" content={title} />

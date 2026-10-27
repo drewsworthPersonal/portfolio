@@ -1,0 +1,54 @@
+---
+import Base from "../../layouts/Base.astro";
+import Nav from "../../components/Nav.astro";
+import { getPosts, formatDate, readingTime } from "../../data/blog";
+
+const posts = await getPosts();
+---
+
+<Base title="Blog | Andrew Velazquez" description="Notes from building software and AI systems for a 24/7 freight operation.">
+  <Nav />
+  <main id="main" class="wrap blog">
+    <header class="head">
+      <p class="eyebrow mono">Blog</p>
+      <h1>Writing</h1>
+      <p class="lede">Notes on building software and AI systems, and on growing as an engineer.</p>
+      <a class="rss mono" href="/rss.xml">RSS feed</a>
+    </header>
+
+    <ul class="posts">
+      {
+        posts.map((post) => (
+          <li>
+            <a href={`/blog/${post.id}/`}>
+              <p class="meta mono">
+                <time datetime={post.data.pubDate.toISOString()}>{formatDate(post.data.pubDate)}</time>
+                <span aria-hidden="true">·</span>
+                <span>{readingTime(post.body)} min read</span>
+              </p>
+              <h2>{post.data.title}</h2>
+              <p class="desc">{post.data.description}</p>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </main>
+</Base>
+
+<style>
+  .blog { max-width: 760px; padding-top: 72px; padding-bottom: 96px; }
+  .eyebrow { font-size: 13px; color: var(--accent); }
+  h1 { margin-top: 8px; font-family: var(--display); font-size: clamp(2.2rem, 6vw, 3.2rem); }
+  .lede { margin-top: 12px; max-width: 54ch; color: var(--muted); font-size: 1.1rem; }
+  .rss { display: inline-block; margin-top: 12px; font-size: 13px; color: var(--muted); text-decoration: none; transition: color 0.15s; }
+  .rss:hover { color: var(--card-link-hover); }
+
+  .posts { display: grid; margin-top: 48px; border-top: 1px solid var(--line); }
+  .posts li { border-bottom: 1px solid var(--line); }
+  .posts a { display: block; padding: 24px 0; text-decoration: none; }
+  .meta { display: flex; flex-wrap: wrap; gap: 8px; font-size: 12px; color: var(--muted); }
+  h2 { margin-top: 8px; font-family: var(--display); font-size: 1.45rem; transition: color 0.15s; }
+  .posts a:hover h2 { color: var(--card-link-hover); }
+  .desc { margin-top: 6px; color: var(--muted); }
+</style>
