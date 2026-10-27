@@ -75,12 +75,6 @@ export const jobs = [
 
 export const projects = [
   {
-    name: "Data Dump",
-    kicker: "GH Logistics · production AI",
-    blurb: "LLM pipeline that reads ops chat and email, matches each update to a load, and writes verified TMS notes and documents. Claude Haiku for intake, Sonnet for export and review, evals in CI, and personal data masked before any model call.",
-    tags: ["Claude API", "Python", "FastAPI", "Cloud Run", "Terraform"],
-  },
-  {
     name: "Multi-agent platform",
     kicker: "GH Logistics · internal",
     blurb: "Local Qwen and Gemma models on llama.cpp do the work, and Claude reviewers approve every plan before anything runs. Agents can only open draft PRs; 43 so far, for bug fixes and SOPs.",
@@ -117,6 +111,13 @@ export const projects = [
     kicker: "GH Logistics · data",
     blurb: "A normalized 44-table Cloud SQL schema. Split a 131-column loads table into a 31-column core plus 7 satellite tables.",
     tags: ["PostgreSQL", "Cloud SQL", "node-pg-migrate"],
+  },
+  {
+    name: "Data Dump",
+    feature: true, // full-width card
+    kicker: "GH Logistics · production AI",
+    blurb: "LLM pipeline that reads ops chat and email, matches each update to a load, and writes verified TMS notes and documents. Claude Haiku for intake, Sonnet for export and review, evals in CI, and personal data masked before any model call.",
+    tags: ["Claude API", "Python", "FastAPI", "Cloud Run", "Terraform"],
   },
 ];
 
