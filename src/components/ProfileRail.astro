@@ -4,12 +4,20 @@
 // the brand, name, title, links, and the sound and theme controls. Scrolling back up
 // reverses it. Wide screens only (1200px+); the page reserves a left column for it
 // (see global.css).
+//
+// On pages without a hero (the blog), pass `always` to show it right away.
 import Brand from "./Brand.astro";
 import Icon from "./Icon.astro";
 import { profile } from "../data/site";
+
+interface Props {
+  always?: boolean;
+}
+
+const { always = false } = Astro.props;
 ---
 
-<aside class="rail" aria-label="Profile" data-rail>
+<aside class="rail" aria-label="Profile" data-rail data-rail-always={always ? "" : undefined}>
   <Brand />
   <p class="name">{profile.name}</p>
   <p class="role">{profile.title}</p>
@@ -157,7 +165,10 @@ import { profile } from "../data/site";
     return Math.min(heroEnds, aboutLands);
   }
 
-  if (about) {
+  if (rail.hasAttribute("data-rail-always")) {
+    pastHero = true;
+    update();
+  } else if (about) {
     let queued = false;
     const check = () => {
       queued = false;

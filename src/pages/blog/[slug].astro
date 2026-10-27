@@ -2,6 +2,7 @@
 import { render } from "astro:content";
 import Base from "../../layouts/Base.astro";
 import Nav from "../../components/Nav.astro";
+import ProfileRail from "../../components/ProfileRail.astro";
 import { getPosts, formatDate, readingTime } from "../../data/blog";
 
 export async function getStaticPaths() {
@@ -19,6 +20,7 @@ const { Content } = await render(post);
 
 <Base title={`${post.data.title} | Andrew Velazquez`} description={post.data.description} ogType="article">
   <Nav />
+  <ProfileRail always />
   <main id="main" class="wrap post">
     <a class="back mono" href="/blog/">← All posts</a>
     <article>
@@ -98,4 +100,11 @@ const { Content } = await render(post);
   .more span { font-size: 12px; font-weight: 400; color: var(--muted); }
   .more .next { grid-column: 2; text-align: right; }
   @media (max-width: 560px) { .more { grid-template-columns: 1fr; } .more .next { grid-column: 1; text-align: left; } }
+  /* Wide screens: leave the same left column as the home page for the profile sidebar */
+  @media (min-width: 1200px) {
+    .post { max-width: 1320px; padding-left: 320px; }
+    /* The hidden nav still takes 64px; pull the content up level with the sidebar (48px) */
+    .post { padding-top: 0; margin-top: -16px; }
+    .post > * { max-width: 720px; }
+  }
 </style>
