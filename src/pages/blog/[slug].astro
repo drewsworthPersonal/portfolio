@@ -1,0 +1,101 @@
+---
+import { render } from "astro:content";
+import Base from "../../layouts/Base.astro";
+import Nav from "../../components/Nav.astro";
+import { getPosts, formatDate, readingTime } from "../../data/blog";
+
+export async function getStaticPaths() {
+  const posts = await getPosts();
+  return posts.map((post, i) => ({
+    params: { slug: post.id },
+    // Posts are newest first, so the next index is the older post
+    props: { post, newer: posts[i - 1], older: posts[i + 1] },
+  }));
+}
+
+const { post, newer, older } = Astro.props;
+const { Content } = await render(post);
+---
+
+<Base title={`${post.data.title} | Andrew Velazquez`} description={post.data.description} ogType="article">
+  <Nav />
+  <main id="main" class="wrap post">
+    <a class="back mono" href="/blog/">← All posts</a>
+    <article>
+      <header>
+        <p class="meta mono">
+          <time datetime={post.data.pubDate.toISOString()}>{formatDate(post.data.pubDate)}</time>
+          <span aria-hidden="true">·</span>
+          <span>{readingTime(post.body)} min read</span>
+        </p>
+        <h1>{post.data.title}</h1>
+        <p class="lede">{post.data.description}</p>
+      </header>
+      <div class="prose">
+        <Content />
+      </div>
+    </article>
+
+    {
+      (newer || older) && (
+        <nav class="more" aria-label="More posts">
+          {older && (
+            <a href={`/blog/${older.id}/`}>
+              <span class="mono">Older</span>
+              {older.data.title}
+            </a>
+          )}
+          {newer && (
+            <a class="next" href={`/blog/${newer.id}/`}>
+              <span class="mono">Newer</span>
+              {newer.data.title}
+            </a>
+          )}
+        </nav>
+      )
+    }
+  </main>
+</Base>
+
+<style>
+  .post { max-width: 720px; padding-top: 56px; padding-bottom: 96px; }
+  .back { font-size: 13px; color: var(--muted); text-decoration: none; transition: color 0.15s; }
+  .back:hover { color: var(--card-link-hover); }
+
+  header { margin-top: 28px; padding-bottom: 28px; border-bottom: 1px solid var(--line); }
+  .meta { display: flex; flex-wrap: wrap; gap: 8px; font-size: 12px; color: var(--muted); }
+  h1 { margin-top: 10px; font-family: var(--display); font-size: clamp(2rem, 5.5vw, 2.9rem); }
+  .lede { margin-top: 12px; color: var(--muted); font-size: 1.1rem; }
+
+  /* Rendered Markdown */
+  .prose { margin-top: 32px; font-size: 1.06rem; line-height: 1.75; }
+  .prose :global(p) { margin: 0 0 1.1em; }
+  .prose :global(h2) { margin: 2em 0 0.6em; font-family: var(--display); font-size: 1.5rem; }
+  .prose :global(h3) { margin: 1.6em 0 0.5em; font-size: 1.2rem; }
+  .prose :global(ul), .prose :global(ol) { margin: 0 0 1.1em; padding-left: 1.4em; }
+  .prose :global(ul) { list-style: disc; }
+  .prose :global(ol) { list-style: decimal; }
+  .prose :global(li) { margin: 0.35em 0; }
+  .prose :global(li::marker) { color: var(--accent); }
+  .prose :global(strong) { font-weight: 650; }
+  .prose :global(a) { color: var(--accent); text-underline-offset: 3px; }
+  .prose :global(a:hover) { color: var(--card-link-hover); }
+  .prose :global(code) { font-family: var(--mono); font-size: 0.9em; padding: 0.1em 0.35em; border-radius: 6px; background: var(--surface-2); }
+  .prose :global(blockquote) { margin: 0 0 1.1em; padding-left: 1em; border-left: 3px solid var(--accent); color: var(--muted); }
+
+  .more { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 56px; padding-top: 28px; border-top: 1px solid var(--line); }
+  .more a {
+    display: grid;
+    gap: 4px;
+    padding: 14px 16px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    text-decoration: none;
+    font-weight: 600;
+    transition: border-color 0.15s;
+  }
+  .more a:hover { border-color: var(--accent); }
+  .more span { font-size: 12px; font-weight: 400; color: var(--muted); }
+  .more .next { grid-column: 2; text-align: right; }
+  @media (max-width: 560px) { .more { grid-template-columns: 1fr; } .more .next { grid-column: 1; text-align: left; } }
+</style>
