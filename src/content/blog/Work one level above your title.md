@@ -4,6 +4,7 @@ title: "Work one level above your title"
 description: "Why I always aim a step ahead of my role, and how AI makes that more possible than ever."
 pubDate: 2026-10-26
 tags: ["career", "growth", "ai"]
+draft: true
 ---
 
 No matter where I am or what my title is, I want my work to be a step ahead of it.
