@@ -1,6 +1,7 @@
 ---
 import Base from "../../layouts/Base.astro";
 import Nav from "../../components/Nav.astro";
+import ProfileRail from "../../components/ProfileRail.astro";
 import { getPosts, formatDate, readingTime } from "../../data/blog";
 
 const posts = await getPosts();
@@ -8,6 +9,7 @@ const posts = await getPosts();
 
 <Base title="Blog | Andrew Velazquez" description="Notes from building software and AI systems for a 24/7 freight operation.">
   <Nav />
+  <ProfileRail always />
   <main id="main" class="wrap blog">
     <header class="head">
       <p class="eyebrow mono">Blog</p>
@@ -51,4 +53,11 @@ const posts = await getPosts();
   h2 { margin-top: 8px; font-family: var(--display); font-size: 1.45rem; transition: color 0.15s; }
   .posts a:hover h2 { color: var(--card-link-hover); }
   .desc { margin-top: 6px; color: var(--muted); }
+  /* Wide screens: leave the same left column as the home page for the profile sidebar */
+  @media (min-width: 1200px) {
+    .blog { max-width: 1320px; padding-left: 320px; }
+    /* The hidden nav still takes 64px; pull the content up level with the sidebar (48px) */
+    .blog { padding-top: 0; margin-top: -16px; }
+    .blog > * { max-width: 760px; }
+  }
 </style>
