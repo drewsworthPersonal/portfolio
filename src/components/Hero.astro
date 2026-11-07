@@ -33,6 +33,8 @@ import { profile, greetings } from "../data/site";
     padding-top: 72px;
     padding-bottom: 40px;
     min-height: min(88vh, 760px);
+    /* The small viewport height doesn't change when the phone's address bar hides, so the hero doesn't jump */
+    min-height: min(88svh, 760px);
   }
   @media (min-width: 900px) {
     .hero { grid-template-columns: 1.1fr 1fr; gap: 56px; }

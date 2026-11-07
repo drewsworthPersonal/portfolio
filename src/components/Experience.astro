@@ -1,5 +1,8 @@
 ---
 import { jobs } from "../data/site";
+
+// Phones show this many bullets per job, with the rest behind a button
+const SHOWN = 3;
 ---
 
 <section class="section wrap" id="experience">
@@ -10,8 +13,8 @@ import { jobs } from "../data/site";
 
   <ol class="timeline">
     {
-      jobs.map((job) => (
-        <li class="job" data-reveal>
+      jobs.map((job, j) => (
+        <li class:list={["job", { collapsible: job.points.length > SHOWN }]} data-reveal>
           <div class="meta">
             <p class="when mono">{job.when}</p>
             <p class="place muted">{job.place}</p>
@@ -20,9 +23,21 @@ import { jobs } from "../data/site";
             <h3>{job.role}</h3>
             <p class="org">{job.org}</p>
             <p class="summary muted">{job.summary}</p>
-            <ul class="points">
+            <ul class="points" id={`points-${j}`}>
               {job.points.map((p) => <li>{p}</li>)}
             </ul>
+            {job.points.length > SHOWN && (
+              <button
+                class="more mono"
+                type="button"
+                aria-expanded="false"
+                aria-controls={`points-${j}`}
+                data-more={`Show all ${job.points.length}`}
+                data-less="Show fewer"
+              >
+                Show all {job.points.length}
+              </button>
+            )}
             <ul class="tags">
               {job.tags.map((t) => <li>{t}</li>)}
             </ul>
@@ -35,7 +50,7 @@ import { jobs } from "../data/site";
 
 <style>
   .timeline { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
-  .job { display: grid; gap: 8px 32px; padding: 28px 0; border-top: 1px solid var(--line); }
+  .job { display: grid; gap: 8px 32px; padding: 28px 0; border-top: 1px solid var(--line); scroll-margin-top: 72px; }
   .job:first-child { border-top: 0; padding-top: 0; }
   @media (min-width: 800px) { .job { grid-template-columns: 180px 1fr; } }
   .when { font-size: 13px; color: var(--accent); }
@@ -57,4 +72,36 @@ import { jobs } from "../data/site";
     opacity: 0.85;
   }
   .tags { margin-top: 18px; }
+
+  .more { display: none; }
+  /* Phones: long jobs show their first three bullets until expanded. Without script, all show. */
+  @media (max-width: 680px) {
+    :global(.js) .collapsible:not(.open) .points li:nth-child(n + 4) { display: none; }
+    :global(.js) .more {
+      display: inline-flex;
+      align-items: center;
+      min-height: 40px;
+      margin-top: 12px;
+      padding: 0 14px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--surface);
+      color: var(--accent);
+      font-size: 13px;
+      cursor: pointer;
+    }
+  }
 </style>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>(".job .more").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const job = btn.closest(".job")!;
+      const open = job.classList.toggle("open");
+      btn.setAttribute("aria-expanded", String(open));
+      btn.textContent = open ? btn.dataset.less! : btn.dataset.more!;
+      // Collapsing from far down the list would leave the reader lost; bring the job back into view
+      if (!open && job.getBoundingClientRect().top < 0) job.scrollIntoView({ block: "start" });
+    });
+  });
+</script>
