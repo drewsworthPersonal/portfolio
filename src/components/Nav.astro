@@ -2,6 +2,7 @@
 import ThemePicker from "./ThemePicker.astro";
 import SoundControl from "./SoundControl.astro";
 import Brand from "./Brand.astro";
+import TabBar from "./TabBar.astro";
 ---
 
 <header class="nav">
@@ -23,6 +24,7 @@ import Brand from "./Brand.astro";
     </div>
   </div>
 </header>
+<TabBar />
 
 <style>
   .nav {
@@ -32,6 +34,7 @@ import Brand from "./Brand.astro";
     background: color-mix(in srgb, var(--bg) 92%, transparent);
     border-bottom: 1px solid var(--line);
     transition: transform 0.35s var(--ease), visibility 0s;
+    view-transition-name: site-nav;
   }
   /* Wide screens: the nav slides away while the profile sidebar is showing */
   @media (min-width: 1200px) {
@@ -56,14 +59,38 @@ import Brand from "./Brand.astro";
   }
   .links a:hover { color: var(--text); background: var(--surface-2); }
   .controls { display: flex; align-items: center; gap: 8px; }
+  /* Phones: the section links move to the bottom tab bar, so only Blog stays up here */
   @media (max-width: 680px) {
-    .links li:nth-child(1), .links li:nth-child(2) { display: none; }
+    .links li:not(:last-child) { display: none; }
     .links a { padding: 6px 8px; font-size: 13px; }
   }
-  /* Phones: only Blog stays, since it is the one link to another page */
-  @media (max-width: 420px) {
-    .links li:not(:last-child) { display: none; }
+
+  /*
+    The bar shrinks from 64px to 52px over the first 120px of scrolling. Driven by the
+    page's own scroll position in CSS, with no script. Browsers without scroll-driven
+    animations keep the full-height bar.
+  */
+  @supports (animation-timeline: scroll()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .nav-inner {
+        animation-name: nav-shrink;
+        animation-timing-function: linear;
+        animation-fill-mode: both;
+        animation-timeline: scroll(root block);
+        animation-range: 0 120px;
+      }
+      .nav {
+        animation-name: nav-settle;
+        animation-timing-function: linear;
+        animation-fill-mode: both;
+        animation-timeline: scroll(root block);
+        animation-range: 0 120px;
+      }
+    }
   }
+  @keyframes nav-shrink { to { height: 52px; } }
+  @keyframes nav-settle { to { box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18); } }
+
   @media (prefers-reduced-motion: reduce) {
     .nav, :global(html.rail-on) .nav { transition: none; }
   }

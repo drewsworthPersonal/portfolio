@@ -1,0 +1,98 @@
+---
+// Bottom tab bar for phones. The thumb reaches the bottom of the screen most easily,
+// so the section links live here instead of the top nav (which only has room for Blog).
+// Hidden on wider screens, where the top nav shows every link.
+import { profile } from "../data/site";
+---
+
+<nav class="tabbar" aria-label="Sections">
+  <ul>
+    <li><a href="/#about" data-tab="about">About</a></li>
+    <li><a href="/#experience" data-tab="experience">Work</a></li>
+    <li><a href="/#projects" data-tab="projects">Projects</a></li>
+    <li><a href="/#contact" data-tab="contact">Contact</a></li>
+    <li>
+      <a class="resume" href={profile.resume} target="_blank" rel="noopener">Resume</a>
+    </li>
+  </ul>
+</nav>
+
+<style>
+  .tabbar { display: none; }
+
+  @media (max-width: 680px) {
+    .tabbar {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 60;
+      display: block;
+      /* Keeps the links clear of the iPhone home indicator */
+      padding: 6px max(8px, env(safe-area-inset-right)) calc(6px + env(safe-area-inset-bottom))
+        max(8px, env(safe-area-inset-left));
+      border-top: 1px solid var(--line);
+      background: color-mix(in srgb, var(--bg) 92%, transparent);
+      -webkit-backdrop-filter: blur(12px);
+      backdrop-filter: blur(12px);
+      view-transition-name: tabbar;
+    }
+    ul { display: flex; align-items: center; gap: 2px; }
+    li { flex: 1 1 0; min-width: 0; }
+    a {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      padding: 0 4px;
+      border-radius: 10px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 500;
+      text-decoration: none;
+      white-space: nowrap;
+      -webkit-tap-highlight-color: transparent;
+      transition: color 0.15s, background-color 0.15s;
+    }
+    a[aria-current="true"] { color: var(--text); background: var(--surface-2); }
+    a.resume {
+      margin-left: 2px;
+      background: var(--accent);
+      color: var(--accent-ink);
+      font-weight: 600;
+    }
+  }
+</style>
+
+<script>
+  // Highlight the tab for the section currently on screen (home page only).
+  const tabs = new Map<string, HTMLAnchorElement>();
+  document.querySelectorAll<HTMLAnchorElement>(".tabbar [data-tab]").forEach((a) => tabs.set(a.dataset.tab!, a));
+  const sections = [...tabs.keys()]
+    .map((id) => document.getElementById(id))
+    .filter((el): el is HTMLElement => el !== null);
+
+  if (sections.length && "IntersectionObserver" in window) {
+    const visible = new Set<string>();
+    const update = () => {
+      // The last visible section in page order wins, so short sections still light up
+      const current = sections.filter((s) => visible.has(s.id)).pop()?.id;
+      tabs.forEach((a, id) => {
+        if (id === current) a.setAttribute("aria-current", "true");
+        else a.removeAttribute("aria-current");
+      });
+    };
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) visible.add(e.target.id);
+          else visible.delete(e.target.id);
+        }
+        update();
+      },
+      // A section counts once it reaches the upper part of the screen
+      { rootMargin: "-30% 0px -55% 0px" },
+    );
+    sections.forEach((s) => io.observe(s));
+  }
+</script>

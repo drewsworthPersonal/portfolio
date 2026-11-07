@@ -25,7 +25,7 @@ const themeIds = themes.map((t) => t.id);
 <html lang="en" data-theme={defaultDark}>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>{title}</title>
     <meta name="description" content={description} />
     <meta name="author" content="Andrew Velazquez" />
@@ -56,6 +56,7 @@ const themeIds = themes.map((t) => t.id);
     <script is:inline define:vars={{ themeIds, defaultDark, defaultLight }}>
       var root = document.documentElement;
       root.classList.add("js");
+      if (window.CSS && CSS.supports && CSS.supports("animation-timeline: view()")) root.classList.add("css-reveal");
       var light = window.matchMedia && matchMedia("(prefers-color-scheme: light)").matches;
       root.dataset.theme = light ? defaultLight : defaultDark;
       try {
